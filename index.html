@@ -50,7 +50,7 @@
             align-items: center;
             width: 100%;
             max-width: 360px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             position: relative;
             z-index: 10;
         }
@@ -64,7 +64,26 @@
             text-transform: uppercase;
         }
 
-        /* --- 计时器区域样式 --- */
+        /* --- 新增：日期时间区域样式 --- */
+        .datetime-display {
+            text-align: center;
+            color: #ffffff;
+        }
+        #current-date {
+            font-size: 1.1rem;
+            font-weight: 400;
+            opacity: 0.9;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        #current-time {
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* --- 秒表区域样式 --- */
         #timer { 
             font-size: 3.5rem; 
             font-weight: 200; 
@@ -124,7 +143,7 @@
         /* --- 独立计数器区域样式 --- */
         .number-wrapper {
             position: relative;
-            width: 100%;       /* 核心修复：宽度自适应，绝不写死 150px，防止多位数挤压卡死 */
+            width: 100%;       
             min-width: 200px;
             height: 120px;
             display: flex;
@@ -219,6 +238,13 @@
 </head>
 <body>
 
+    <div class="container-card" style="padding: 20px 30px; margin-bottom: 20px;">
+        <div class="datetime-display">
+            <div id="current-date">0000年00月00日 星期一</div>
+            <div id="current-time">00:00:00</div>
+        </div>
+    </div>
+
     <div class="container-card">
         <h2>⏱️ StopWatch</h2>
         <div id="timer">00:00.00</div>
@@ -242,6 +268,31 @@
     </div>
 
     <script>
+        // ---------------- 新增：实时日期时间逻辑 ----------------
+        function updateDateTime() {
+            const now = new Date();
+            
+            // 格式化日期
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const date = String(now.getDate()).padStart(2, '0');
+            const weeks = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const week = weeks[now.getDay()];
+            
+            document.getElementById('current-date').textContent = `${year}年${month}月${date}日 ${week}`;
+            
+            // 格式化时间
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        // 初始化并每秒更新一次
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+
         // ---------------- 秒表逻辑 ----------------
         let startTime, updatedTime, difference;
         let tInterval;
@@ -307,7 +358,7 @@
         countBtn.addEventListener('click', handleCountOrReset);
 
 
-        // ---------------- 独立计数器逻辑（严谨局部控制） ----------------
+        // ---------------- 独立计数器逻辑 ----------------
         let globalCount = 0;
         const wrapper = document.querySelector('.number-wrapper');
         const plusBtn = document.getElementById('plusBtn');
@@ -315,7 +366,6 @@
         const resetCounterBtn = document.getElementById('resetCounterBtn');
 
         function updateCounterUI(newVal) {
-            // 严谨修复：连击时，直接把带有 old-num 且还没来得及移出的隐形节点全部强制删干净
             const existingOlds = wrapper.querySelectorAll('.old-num');
             existingOlds.forEach(el => el.remove());
 
@@ -336,7 +386,6 @@
             globalCount++;
             updateCounterUI(globalCount);
             
-            // 保证爆炸特效位置准确
             let clientX = e.clientX || window.innerWidth / 2;
             let clientY = e.clientY || window.innerHeight / 2;
             
