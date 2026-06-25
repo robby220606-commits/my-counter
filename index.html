@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>高颜值计时计数器 App</title>
+    <style>
+        /* 全局重置与排版 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 360px;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        h2 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* --- 计时器区域样式 --- */
+        #timer { 
+            font-size: 3.5rem; 
+            font-weight: 200; 
+            color: #ffffff;
+            margin: 10px 0 20px 0; 
+            font-variant-numeric: tabular-nums; 
+            text-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .btn-round { 
+            width: 75px;
+            height: 75px;
+            border-radius: 50%; 
+            border: none; 
+            font-size: 15px;
+            font-weight: bold; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            -webkit-appearance: none; 
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+        #startBtn { color: #23d5ab; background: rgba(255, 255, 255, 0.9); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        #startBtn.running { color: #ff3b30; }
+
+        #recordList {
+            width: 100%;
+            max-height: 120px;
+            overflow-y: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0;
+            margin-top: 10px;
+            list-style: none;
+        }
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* --- 独立计数器区域样式 --- */
+        .number-wrapper {
+            position: relative;
+            width: 100%;       /* 核心修复：宽度自适应，绝不写死 150px，防止多位数挤压卡死 */
+            min-width: 200px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .num {
+            position: absolute;
+            font-size: 5.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards;
+        }
+
+        .old-num {
+            animation: slideOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards;
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateY(50px) scale(0.8); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(0.8); opacity: 0; }
+        }
+
+        .counter-controls {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-top: 25px;
+        }
+
+        .btn-rect {
+            padding: 16px 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        
+        #plusBtn { 
+            background: #ffffff; 
+            color: #e73c7e; 
+            flex-grow: 1; 
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.25);
+        }
+        #minusBtn, #resetCounterBtn { 
+            background: rgba(0, 0, 0, 0.15); 
+            color: rgba(255, 255, 255, 0.9); 
+            width: 65px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-rect:active, .btn-round:active {
+            transform: scale(0.96);
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(231, 60, 126, 0.2);
+            transform: scale(0);
+            animation: ripple-anim 0.5s linear;
+            pointer-events: none;
+        }
+        @keyframes ripple-anim {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-card">
+        <h2>⏱️ StopWatch</h2>
+        <div id="timer">00:00.00</div>
+        <div class="btn-container">
+            <button id="countBtn" class="btn-round">计圈</button>
+            <button id="startBtn" class="btn-round">开始</button>
+        </div>
+        <ul id="recordList"></ul>
+    </div>
+
+    <div class="container-card">
+        <h2>🔢 Counter</h2>
+        <div class="number-wrapper">
+            <span class="num current-num">0</span>
+        </div>
+        <div class="counter-controls">
+            <button id="minusBtn" class="btn-rect">-1</button>
+            <button id="plusBtn" class="btn-rect">+1 计数</button>
+            <button id="resetCounterBtn" class="btn-rect">清零</button>
+        </div>
+    </div>
+
+    <script>
+        // ---------------- 秒表逻辑 ----------------
+        let startTime, updatedTime, difference;
+        let tInterval;
+        let running = false;
+        let countIndex = 0;
+
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const countBtn = document.getElementById('countBtn');
+        const recordList = document.getElementById('recordList');
+
+        function startTimer() {
+            if (!running) {
+                startTime = new Date().getTime() - (difference || 0);
+                tInterval = setInterval(getShowTime, 10);
+                running = true;
+                startBtn.innerHTML = "停止";
+                startBtn.classList.add('running');
+                countBtn.innerHTML = "计圈";
+            } else {
+                clearInterval(tInterval);
+                running = false;
+                startBtn.innerHTML = "开始";
+                startBtn.classList.remove('running');
+                countBtn.innerHTML = "重置";
+            }
+        }
+
+        function handleCountOrReset() {
+            if (running) {
+                countIndex++;
+                const currentTimeStr = timerDisplay.innerHTML;
+                const li = document.createElement('li');
+                li.className = 'record-item';
+                li.innerHTML = `<span>第 ${countIndex} 次计圈</span> <span>${currentTimeStr}</span>`;
+                recordList.insertBefore(li, recordList.firstChild);
+            } else {
+                clearInterval(tInterval);
+                running = false;
+                difference = 0;
+                countIndex = 0;
+                timerDisplay.innerHTML = "00:00.00";
+                startBtn.innerHTML = "开始";
+                startBtn.classList.remove('running');
+                countBtn.innerHTML = "计圈";
+                recordList.innerHTML = "";
+            }
+        }
+
+        function getShowTime() {
+            updatedTime = new Date().getTime();
+            difference = updatedTime - startTime;
+            let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((difference % (1000 * 60)) / 1000);
+            let milliseconds = Math.floor((difference % 1000) / 10);
+            minutes = (minutes < 10) ? "0" + minutes : minutes;
+            seconds = (seconds < 10) ? "0" + seconds : seconds;
+            milliseconds = (milliseconds < 10) ? "0" + milliseconds : milliseconds;
+            timerDisplay.innerHTML = minutes + ":" + seconds + "." + milliseconds;
+        }
+
+        startBtn.addEventListener('click', startTimer);
+        countBtn.addEventListener('click', handleCountOrReset);
+
+
+        // ---------------- 独立计数器逻辑（严谨局部控制） ----------------
+        let globalCount = 0;
+        const wrapper = document.querySelector('.number-wrapper');
+        const plusBtn = document.getElementById('plusBtn');
+        const minusBtn = document.getElementById('minusBtn');
+        const resetCounterBtn = document.getElementById('resetCounterBtn');
+
+        function updateCounterUI(newVal) {
+            // 严谨修复：连击时，直接把带有 old-num 且还没来得及移出的隐形节点全部强制删干净
+            const existingOlds = wrapper.querySelectorAll('.old-num');
+            existingOlds.forEach(el => el.remove());
+
+            const oldSpan = wrapper.querySelector('.current-num');
+            if(oldSpan) {
+                oldSpan.classList.remove('current-num');
+                oldSpan.classList.add('old-num');
+                setTimeout(() => { oldSpan.remove(); }, 400); 
+            }
+
+            const newSpan = document.createElement('span');
+            newSpan.textContent = newVal;
+            newSpan.classList.add('num', 'current-num');
+            wrapper.appendChild(newSpan);
+        }
+
+        function handlePlus(e) {
+            globalCount++;
+            updateCounterUI(globalCount);
+            
+            // 保证爆炸特效位置准确
+            let clientX = e.clientX || window.innerWidth / 2;
+            let clientY = e.clientY || window.innerHeight / 2;
+            
+            createRipple(clientX, clientY, plusBtn);
+            createParticles(clientX, clientY);
+        }
+
+        function handleMinus() {
+            if (globalCount > 0) {
+                globalCount--;
+                updateCounterUI(globalCount);
+            }
+        }
+
+        function handleReset() {
+            globalCount = 0;
+            updateCounterUI(globalCount);
+        }
+
+        plusBtn.addEventListener('click', handlePlus);
+        minusBtn.addEventListener('click', handleMinus);
+        resetCounterBtn.addEventListener('click', handleReset);
+
+
+        // ---------------- 特效动画函数 ----------------
+        function createRipple(clientX, clientY, button) {
+            const circle = document.createElement('span');
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+            circle.style.width = circle.style.height = `${diameter}px`;
+            
+            const rect = button.getBoundingClientRect();
+            const x = clientX - rect.left - radius;
+            const y = clientY - rect.top - radius;
+
+            circle.style.left = `${x}px`;
+            circle.style.top = `${y}px`;
+            circle.classList.add('ripple');
+
+            const existingRipple = button.querySelector('.ripple');
+            if (existingRipple) existingRipple.remove();
+            button.appendChild(circle);
+        }
+
+        function createParticles(x, y) {
+            const particleCount = 12;
+            const colors = ['#ffffff', '#fecfef', '#ff9a9e', '#f6d365', '#fda085'];
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                document.body.appendChild(particle);
+                
+                const size = Math.random() * 8 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = Math.random() * 80 + 40;
+                const destX = x + Math.cos(angle) * distance;
+                const destY = y + Math.sin(angle) * distance;
+                
+                particle.animate([
+                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                    { transform: `translate(${destX - x}px, ${destY - y}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 400 + 400,
+                    easing: 'cubic-bezier(0, .9, .57, 1)'
+                });
+                
+                setTimeout(() => { particle.remove(); }, 800);
+            }
+        }
+    </script>
+</body>
+</html>
