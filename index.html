@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>高颜值计时计数器 App</title>
+    <title>工具箱 · 计时计数器</title>
     <style>
         /* 全局重置与排版 */
         * {
@@ -17,7 +17,7 @@
             outline: none !important;
             -webkit-user-select: none;
             user-select: none;
-            touch-action: manipulation; 
+            touch-action: manipulation;
         }
 
         body {
@@ -30,7 +30,7 @@
             background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
             background-size: 400% 400%;
             animation: gradientBG 15s ease infinite;
-            padding: 40px 20px;
+            padding: 34px 20px 48px;
             overflow-y: auto;
         }
 
@@ -40,60 +40,147 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* 环境光斑 + 暗角，让渐变更有层次 */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+            background:
+                radial-gradient(circle at 18% 12%, rgba(255,255,255,0.22), transparent 42%),
+                radial-gradient(circle at 85% 84%, rgba(255,255,255,0.14), transparent 45%),
+                radial-gradient(circle at 50% 50%, transparent 45%, rgba(0,0,0,0.12) 100%);
+        }
+
+        /* ---------- 顶部标题 ---------- */
+        .app-title {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 24px;
+            z-index: 10;
+            animation: cardIn 0.5s cubic-bezier(0.22,0.9,0.3,1) both;
+        }
+        .app-title h1 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 8px;
+            text-indent: 8px;
+            text-shadow: 0 4px 14px rgba(0,0,0,0.22);
+        }
+        .app-title p {
+            font-size: 0.76rem;
+            letter-spacing: 4px;
+            text-indent: 4px;
+            opacity: 0.82;
+            margin-top: 7px;
+        }
+
+        /* ---------- 双列网格 ---------- */
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+            width: 100%;
+            max-width: 800px;
+            z-index: 10;
+        }
+        .clock-card { grid-column: 1 / -1; }
+
+        @media (max-width: 760px) {
+            .app-grid { grid-template-columns: 1fr; max-width: 430px; }
+        }
+
         .container-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 30px;
-            padding: 30px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(150deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.10));
+            backdrop-filter: blur(22px) saturate(150%);
+            -webkit-backdrop-filter: blur(22px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 26px;
+            padding: 24px 22px 26px;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.45);
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             width: 100%;
-            max-width: 360px;
-            margin-bottom: 25px;
             position: relative;
             z-index: 10;
+            animation: cardIn 0.55s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container-card:nth-child(1) { animation-delay: 0.04s; }
+        .container-card:nth-child(2) { animation-delay: 0.10s; }
+        .container-card:nth-child(3) { animation-delay: 0.16s; }
+        .container-card:nth-child(4) { animation-delay: 0.22s; }
+        .container-card:nth-child(5) { animation-delay: 0.28s; }
+
+        /* 入场动画结束后接管，交给 hover 微交互 */
+        .container-card.anim-done {
+            animation: none;
+            transition: transform 0.28s ease, box-shadow 0.28s ease;
+        }
+        @media (hover: hover) {
+            .container-card.anim-done:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 26px 54px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            }
         }
 
         h2 {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.1rem;
-            margin-bottom: 15px;
+            color: rgba(255, 255, 255, 0.92);
+            font-size: 0.88rem;
+            margin-bottom: 18px;
             font-weight: 600;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+        h2::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, rgba(255,255,255,0.4), rgba(255,255,255,0));
         }
 
         /* 时钟区域 */
+        .clock-card { padding: 22px 30px 26px; }
         .datetime-display {
             text-align: center;
             color: #ffffff;
         }
         #current-date {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 400;
-            opacity: 0.9;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
+            opacity: 0.88;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
         }
         #current-time {
-            font-size: 2.2rem;
+            font-size: 3.2rem;
             font-weight: 700;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            letter-spacing: 3px;
+            text-shadow: 0 6px 18px rgba(0,0,0,0.18);
             font-variant-numeric: tabular-nums;
         }
 
         /* 秒表区域 */
-        #timer { 
-            font-size: 3.5rem; 
-            font-weight: 200; 
+        #timer {
+            font-size: 3.1rem;
+            font-weight: 200;
             color: #ffffff;
-            margin: 10px 0 20px 0; 
-            font-variant-numeric: tabular-nums; 
-            text-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin: 6px 0 18px 0;
+            letter-spacing: 1px;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
 
         .btn-container {
@@ -102,35 +189,39 @@
             margin-bottom: 15px;
         }
 
-        .btn-round { 
-            width: 75px;
-            height: 75px;
-            border-radius: 50%; 
-            border: none; 
+        .btn-round {
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.35);
             font-size: 15px;
-            font-weight: bold; 
+            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
             outline: none !important;
-            -webkit-appearance: none; 
+            -webkit-appearance: none;
             cursor: pointer;
-            background: rgba(255, 255, 255, 0.25);
+            background: linear-gradient(150deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.14));
             color: #ffffff;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255, 255, 255, 0.5);
             transition: all 0.2s ease;
             touch-action: none;
         }
-        #startBtn { color: #23d5ab; background: rgba(255, 255, 255, 0.9); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        #startBtn {
+            color: #1fb98c;
+            background: linear-gradient(150deg, #ffffff, #edf2fa);
+            box-shadow: 0 12px 26px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
         #startBtn.running { color: #ff3b30; }
 
         #recordList {
             width: 100%;
             max-height: 120px;
             overflow-y: auto;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.22);
             padding: 0;
             margin-top: 10px;
             list-style: none;
@@ -138,29 +229,31 @@
         .record-item {
             display: flex;
             justify-content: space-between;
-            padding: 10px 5px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 9px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.85);
+            font-variant-numeric: tabular-nums;
         }
 
         /* 独立计数器 */
         .number-wrapper {
             position: relative;
-            width: 100%;       
+            width: 100%;
             min-width: 200px;
-            height: 120px;
+            height: 130px;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
         .num {
             position: absolute;
-            font-size: 5.5rem;
+            font-size: 4.8rem;
             font-weight: 800;
             color: #ffffff;
-            text-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            text-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
             animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2) forwards;
         }
 
@@ -202,19 +295,20 @@
             transition: all 0.2s ease;
             touch-action: none;
         }
-        
-        #plusBtn { 
-            background: #ffffff; 
-            color: #e73c7e; 
-            flex-grow: 1; 
-            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.25);
+
+        #plusBtn {
+            background: linear-gradient(135deg, #ffffff, #ffeaf3);
+            color: #e73c7e;
+            flex-grow: 1;
+            box-shadow: 0 12px 26px rgba(255, 255, 255, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
-        #minusBtn, #resetCounterBtn { 
-            background: rgba(0, 0, 0, 0.15); 
-            color: rgba(255, 255, 255, 0.9); 
+        #minusBtn, #resetCounterBtn {
+            background: linear-gradient(150deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.12));
+            color: rgba(255, 255, 255, 0.92);
             width: 65px;
             font-size: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
         }
 
         .btn-rect:active, .btn-round:active {
@@ -233,37 +327,153 @@
         @keyframes ripple-anim {
             to { transform: scale(4); opacity: 0; }
         }
+
+        /* ---------- 单位/汇率换算模块 ---------- */
+        .convert-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            align-items: stretch;
+        }
+
+        .convert-input,
+        .convert-select {
+            -webkit-user-select: text !important;
+            user-select: text !important;
+            background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.10));
+            background-color: transparent;
+            background-repeat: no-repeat;
+            background-position: center;
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            border-radius: 14px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.07);
+            color: #ffffff;
+            font-size: 1.02rem;
+            padding: 13px 14px;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .convert-input { flex: 1; }
+        .convert-input::placeholder { color: rgba(255, 255, 255, 0.62); }
+        .convert-input[readonly] {
+            background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.16));
+            font-weight: 600;
+        }
+        .convert-select {
+            flex: 1;
+            cursor: pointer;
+            background-image:
+                url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E"),
+                linear-gradient(150deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.10));
+            background-repeat: no-repeat, no-repeat;
+            background-position: right 12px center, center;
+            padding-right: 32px;
+        }
+        .convert-select option { color: #333; background: #fff; }
+        .convert-input:focus,
+        .convert-select:focus {
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18), inset 0 1px 3px rgba(0,0,0,0.07);
+        }
+
+        .swap-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: linear-gradient(150deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.12));
+            color: #ffffff;
+            font-size: 1.15rem;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            margin: 11px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .swap-btn:active { transform: rotate(180deg) scale(0.94); }
+
+        .convert-note {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 10px;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container-card" style="padding: 20px 30px; margin-bottom: 20px;">
-        <div class="datetime-display">
-            <div id="current-date">0000年00月00日 星期一</div>
-            <div id="current-time">00:00:00</div>
-        </div>
-    </div>
+    <header class="app-title">
+        <h1>工具箱</h1>
+        <p>计时 · 计数 · 换算</p>
+    </header>
 
-    <div class="container-card">
-        <h2>⏱️ StopWatch</h2>
-        <div id="timer">00:00.00</div>
-        <div class="btn-container">
-            <button id="countBtn" class="btn-round">计圈</button>
-            <button id="startBtn" class="btn-round">开始</button>
-        </div>
-        <ul id="recordList"></ul>
-    </div>
+    <div class="app-grid">
 
-    <div class="container-card">
-        <h2>🔢 Counter</h2>
-        <div class="number-wrapper">
-            <span class="num current-num">0</span>
+        <div class="container-card clock-card">
+            <div class="datetime-display">
+                <div id="current-date">0000年00月00日 星期一</div>
+                <div id="current-time">00:00:00</div>
+            </div>
         </div>
-        <div class="counter-controls">
-            <button id="minusBtn" class="btn-rect">-1</button>
-            <button id="plusBtn" class="btn-rect">+1 计数</button>
-            <button id="resetCounterBtn" class="btn-rect">清零</button>
+
+        <div class="container-card">
+            <h2>⏱️ StopWatch</h2>
+            <div id="timer">00:00.00</div>
+            <div class="btn-container">
+                <button id="countBtn" class="btn-round">计圈</button>
+                <button id="startBtn" class="btn-round">开始</button>
+            </div>
+            <ul id="recordList"></ul>
         </div>
+
+        <div class="container-card">
+            <h2>🔢 Counter</h2>
+            <div class="number-wrapper">
+                <span class="num current-num">0</span>
+            </div>
+            <div class="counter-controls">
+                <button id="minusBtn" class="btn-rect">-1</button>
+                <button id="plusBtn" class="btn-rect">+1 计数</button>
+                <button id="resetCounterBtn" class="btn-rect">清零</button>
+            </div>
+        </div>
+
+        <div class="container-card">
+            <h2>📐 单位换算</h2>
+            <select id="unitCategory" class="convert-select" style="width:100%; margin-bottom: 14px;"></select>
+            <div class="convert-row">
+                <input id="unitFromVal" class="convert-input" type="number" inputmode="decimal" placeholder="输入数值">
+                <select id="unitFrom" class="convert-select"></select>
+            </div>
+            <button id="unitSwap" class="swap-btn">⇅</button>
+            <div class="convert-row">
+                <input id="unitToVal" class="convert-input" readonly placeholder="换算结果">
+                <select id="unitTo" class="convert-select"></select>
+            </div>
+        </div>
+
+        <div class="container-card">
+            <h2>💱 汇率换算</h2>
+            <div class="convert-row">
+                <input id="rateFromVal" class="convert-input" type="number" inputmode="decimal" placeholder="输入金额">
+                <select id="rateFrom" class="convert-select"></select>
+            </div>
+            <button id="rateSwap" class="swap-btn">⇅</button>
+            <div class="convert-row">
+                <input id="rateToVal" class="convert-input" readonly placeholder="换算结果">
+                <select id="rateTo" class="convert-select"></select>
+            </div>
+            <div id="rateNote" class="convert-note">汇率加载中…</div>
+        </div>
+
     </div>
 
     <script>
@@ -276,7 +486,7 @@
             const weeks = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
             const week = weeks[now.getDay()];
             document.getElementById('current-date').textContent = `${year}年${month}月${date}日 ${week}`;
-            
+
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
@@ -365,7 +575,7 @@
             if(oldSpan) {
                 oldSpan.classList.remove('current-num');
                 oldSpan.classList.add('old-num');
-                setTimeout(() => { oldSpan.remove(); }, 400); 
+                setTimeout(() => { oldSpan.remove(); }, 400);
             }
 
             const newSpan = document.createElement('span');
@@ -376,7 +586,7 @@
 
         function handleAction(e, type) {
             e.preventDefault();
-            
+
             const clientX = e.clientX;
             const clientY = e.clientY;
 
@@ -408,16 +618,244 @@
             const diameter = Math.max(button.clientWidth, button.clientHeight);
             const radius = diameter / 2;
             circle.style.width = circle.style.height = `${diameter}px`;
-            
+
             const rect = button.getBoundingClientRect();
             circle.style.left = `${clientX - rect.left - radius}px`;
             circle.style.top = `${clientY - rect.top - radius}px`;
             circle.classList.add('ripple');
-            
+
             const existingRipple = button.querySelector('.ripple');
             if (existingRipple) existingRipple.remove();
             button.appendChild(circle);
         }
+
+        // ---------------- 单位换算逻辑 ----------------
+        const UNIT_CATEGORIES = {
+            '长度': {
+                units: [
+                    ['毫米', 0.001], ['厘米', 0.01], ['分米', 0.1], ['米', 1],
+                    ['千米', 1000], ['英尺', 0.3048], ['英寸', 0.0254], ['码', 0.9144],
+                    ['英里', 1609.344], ['海里', 1852], ['里', 500], ['尺', 1 / 3], ['寸', 1 / 30]
+                ]
+            },
+            '重量': {
+                units: [
+                    ['毫克', 1e-6], ['克', 0.001], ['千克', 1], ['吨', 1000],
+                    ['磅', 0.45359237], ['盎司', 0.028349523], ['斤', 0.5], ['两', 0.05], ['克拉', 0.0002]
+                ]
+            },
+            '温度': {
+                special: true,
+                units: [['摄氏度', 0], ['华氏度', 0], ['开尔文', 0]]
+            },
+            '面积': {
+                units: [
+                    ['平方厘米', 1e-4], ['平方米', 1], ['平方千米', 1e6], ['公顷', 1e4],
+                    ['亩', 666.6667], ['平方英尺', 0.09290304], ['平方英寸', 0.00064516], ['英亩', 4046.856]
+                ]
+            },
+            '体积': {
+                units: [
+                    ['毫升', 0.001], ['升', 1], ['立方米', 1000], ['立方厘米', 0.001],
+                    ['加仑(美)', 3.78541], ['加仑(英)', 4.54609], ['立方英尺', 28.3168], ['立方英寸', 0.0163871]
+                ]
+            },
+            '速度': {
+                units: [
+                    ['米/秒', 1], ['千米/时', 0.277778], ['英里/时', 0.44704], ['节', 0.514444], ['英尺/秒', 0.3048]
+                ]
+            },
+            '数据存储': {
+                units: [
+                    ['字节(B)', 1], ['千字节(KB)', 1024], ['兆字节(MB)', 1048576],
+                    ['吉字节(GB)', 1073741824], ['太字节(TB)', 1099511627776],
+                    ['比特(bit)', 0.125], ['千比特(Kb)', 128], ['兆比特(Mb)', 131072]
+                ]
+            },
+            '时间': {
+                units: [
+                    ['毫秒', 0.001], ['秒', 1], ['分钟', 60], ['小时', 3600],
+                    ['天', 86400], ['周', 604800], ['月(30天)', 2592000], ['年(365天)', 31536000]
+                ]
+            }
+        };
+
+        const unitCategoryEl = document.getElementById('unitCategory');
+        const unitFromEl = document.getElementById('unitFrom');
+        const unitToEl = document.getElementById('unitTo');
+        const unitFromVal = document.getElementById('unitFromVal');
+        const unitToVal = document.getElementById('unitToVal');
+        const unitSwapBtn = document.getElementById('unitSwap');
+
+        function fillUnitCategory() {
+            unitCategoryEl.innerHTML = '';
+            for (const cat of Object.keys(UNIT_CATEGORIES)) {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                unitCategoryEl.appendChild(opt);
+            }
+        }
+
+        function fillUnitSelects() {
+            const cat = unitCategoryEl.value;
+            const units = UNIT_CATEGORIES[cat].units.map(u => u[0]);
+            [unitFromEl, unitToEl].forEach((sel, i) => {
+                sel.innerHTML = '';
+                units.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u;
+                    opt.textContent = u;
+                    sel.appendChild(opt);
+                });
+                sel.value = i === 0 ? units[0] : units[Math.min(1, units.length - 1)];
+            });
+        }
+
+        function tempToBase(v, unit) {
+            if (unit === '华氏度') return (v - 32) * 5 / 9;
+            if (unit === '开尔文') return v - 273.15;
+            return v;
+        }
+        function tempFromBase(v, unit) {
+            if (unit === '华氏度') return v * 9 / 5 + 32;
+            if (unit === '开尔文') return v + 273.15;
+            return v;
+        }
+
+        function fmtNum(n) {
+            if (isNaN(n) || !isFinite(n)) return '—';
+            if (n === 0) return '0';
+            const abs = Math.abs(n);
+            let s;
+            if (abs >= 1) s = n.toFixed(2);
+            else if (abs >= 0.001) s = n.toFixed(4);
+            else s = n.toFixed(6);
+            return parseFloat(s).toString();
+        }
+
+        function doUnitConvert() {
+            const cat = UNIT_CATEGORIES[unitCategoryEl.value];
+            const from = unitFromEl.value;
+            const to = unitToEl.value;
+            const val = parseFloat(unitFromVal.value);
+            if (isNaN(val)) { unitToVal.value = ''; return; }
+            let result;
+            if (cat.special) {
+                result = tempFromBase(tempToBase(val, from), to);
+            } else {
+                const f = cat.units.find(u => u[0] === from)[1];
+                const t = cat.units.find(u => u[0] === to)[1];
+                result = val * f / t;
+            }
+            unitToVal.value = fmtNum(result);
+        }
+
+        fillUnitCategory();
+        fillUnitSelects();
+        unitCategoryEl.addEventListener('change', () => { fillUnitSelects(); doUnitConvert(); });
+        unitFromEl.addEventListener('change', doUnitConvert);
+        unitToEl.addEventListener('change', doUnitConvert);
+        unitFromVal.addEventListener('input', doUnitConvert);
+        unitSwapBtn.addEventListener('click', () => {
+            const t = unitFromEl.value;
+            unitFromEl.value = unitToEl.value;
+            unitToEl.value = t;
+            doUnitConvert();
+        });
+
+        // ---------------- 汇率换算逻辑 ----------------
+        const RATE_LABELS = {
+            CNY: '人民币', USD: '美元', EUR: '欧元', JPY: '日元', GBP: '英镑',
+            HKD: '港币', TWD: '新台币', KRW: '韩元', AUD: '澳元', CAD: '加元',
+            SGD: '新加坡元', THB: '泰铢', MYR: '林吉特', VND: '越南盾', RUB: '卢布',
+            CHF: '瑞士法郎', INR: '印度卢比', MOP: '澳门元', NZD: '新西兰元',
+            PHP: '菲律宾比索', IDR: '印尼盾'
+        };
+        // 内置离线汇率：1 人民币 = X 外币（仅作后备，联网后会被实时汇率覆盖）
+        const FALLBACK_RATES = {
+            CNY: 1, USD: 0.1408, EUR: 0.1274, JPY: 21.28, GBP: 0.1093,
+            HKD: 1.099, TWD: 4.55, KRW: 192.3, AUD: 0.215, CAD: 0.194,
+            SGD: 0.187, THB: 5.0, MYR: 0.625, VND: 3570, RUB: 12.8,
+            CHF: 0.122, INR: 11.76, MOP: 1.13, NZD: 0.238, PHP: 8.0, IDR: 2222
+        };
+        let RATES = Object.assign({}, FALLBACK_RATES);
+        const RATE_KEYS = Object.keys(RATES);
+
+        const rateFromEl = document.getElementById('rateFrom');
+        const rateToEl = document.getElementById('rateTo');
+        const rateFromVal = document.getElementById('rateFromVal');
+        const rateToVal = document.getElementById('rateToVal');
+        const rateSwapBtn = document.getElementById('rateSwap');
+        const rateNote = document.getElementById('rateNote');
+
+        function fillRateSelects() {
+            [rateFromEl, rateToEl].forEach((sel, i) => {
+                sel.innerHTML = '';
+                RATE_KEYS.forEach(code => {
+                    const opt = document.createElement('option');
+                    opt.value = code;
+                    opt.textContent = `${code} ${RATE_LABELS[code] || ''}`;
+                    sel.appendChild(opt);
+                });
+                sel.value = i === 0 ? 'CNY' : 'USD';
+            });
+        }
+
+        function doRateConvert() {
+            const from = rateFromEl.value;
+            const to = rateToEl.value;
+            const val = parseFloat(rateFromVal.value);
+            if (isNaN(val)) { rateToVal.value = ''; return; }
+            const result = val * RATES[to] / RATES[from];
+            rateToVal.value = fmtNum(result);
+        }
+
+        async function refreshRates() {
+            const apis = [
+                'https://open.er-api.com/v6/latest/CNY',
+                'https://api.exchangerate-api.com/v4/latest/CNY'
+            ];
+            for (const url of apis) {
+                try {
+                    const res = await fetch(url, { cache: 'no-store' });
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    const rates = data && data.rates;
+                    if (!rates || typeof rates !== 'object') continue;
+                    let updated = 0;
+                    for (const k of RATE_KEYS) {
+                        if (rates[k] && rates[k] > 0) { RATES[k] = rates[k]; updated++; }
+                    }
+                    if (updated > 0) {
+                        rateNote.textContent = '✅ 汇率已联网更新';
+                        doRateConvert();
+                        return;
+                    }
+                } catch (e) { /* 尝试下一个源 */ }
+            }
+            rateNote.textContent = '📶 离线汇率，仅供参考';
+        }
+
+        fillRateSelects();
+        rateFromEl.addEventListener('change', doRateConvert);
+        rateToEl.addEventListener('change', doRateConvert);
+        rateFromVal.addEventListener('input', doRateConvert);
+        rateSwapBtn.addEventListener('click', () => {
+            const t = rateFromEl.value;
+            rateFromEl.value = rateToEl.value;
+            rateToEl.value = t;
+            doRateConvert();
+        });
+        refreshRates();
+
+        // ---------------- 入场动画收尾 ----------------
+        // 动画播放结束后移除 animation，避免与卡片 hover 的 transform 冲突
+        document.querySelectorAll('.container-card').forEach(card => {
+            card.addEventListener('animationend', (e) => {
+                if (e.target === card) card.classList.add('anim-done');
+            });
+        });
     </script>
 </body>
 </html>
