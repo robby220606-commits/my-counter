@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>工具箱 · 计时 · 计数 · 换算 · 黄历</title>
+    <title>工具箱 · 计时 · 计数 · 换算</title>
     <style>
         /* 全局重置与排版 */
         * {
@@ -154,14 +154,8 @@
         /* 时钟区域 */
         .clock-card { padding: 24px 30px 26px; }
         .clock-inner {
-            display: grid;
-            grid-template-columns: minmax(200px, 0.82fr) minmax(0, 1.18fr);
-            gap: 30px;
-            align-items: center;
+            display: block;
             width: 100%;
-        }
-        @media (max-width: 760px) {
-            .clock-inner { grid-template-columns: 1fr; gap: 22px; }
         }
         .datetime-display {
             text-align: center;
@@ -190,102 +184,6 @@
         }
         #term-line b { font-weight: 600; opacity: 1; }
 
-        /* ---------- 黄历面板 ---------- */
-        .hl-panel { display: flex; flex-direction: column; gap: 11px; width: 100%; }
-
-        .hl-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 8px;
-        }
-        .hl-cell {
-            background: rgba(255, 255, 255, 0.13);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 7px 9px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            min-width: 0;
-        }
-        .hl-cell.span2 { grid-column: span 2; }
-        .hl-cell.span3 { grid-column: span 3; }
-        @media (max-width: 420px) {
-            .hl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .hl-cell.span2, .hl-cell.span3 { grid-column: span 2; }
-        }
-        .hl-k {
-            font-size: 0.63rem;
-            opacity: 0.7;
-            letter-spacing: 1.4px;
-        }
-        .hl-v {
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 0.4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .hl-verdict {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-            padding: 8px 13px;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .hl-badge {
-            flex: none;
-            font-size: 0.86rem;
-            font-weight: 700;
-            letter-spacing: 2.5px;
-            text-indent: 2.5px;
-            padding: 3px 12px;
-            border-radius: 9px;
-            color: #fff;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
-        }
-        .hl-badge.lv5 { background: linear-gradient(135deg, #ffca28, #ff6f43); }
-        .hl-badge.lv4 { background: linear-gradient(135deg, #ffd54f, #ffa726); }
-        .hl-badge.lv3 { background: rgba(255, 255, 255, 0.32); }
-        .hl-badge.lv2 { background: linear-gradient(135deg, #7e8ba3, #5c6b85); }
-        .hl-badge.lv1 { background: linear-gradient(135deg, #5c6bc0, #37307a); }
-        .hl-score { font-size: 0.72rem; opacity: 0.86; letter-spacing: 0.4px; }
-
-        .hl-yj { display: flex; flex-direction: column; gap: 6px; }
-        .hl-row { display: flex; align-items: flex-start; gap: 9px; }
-        .hl-tag {
-            flex: none;
-            width: 21px;
-            height: 21px;
-            border-radius: 7px;
-            display: grid;
-            place-items: center;
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 0;
-        }
-        .hl-tag.yi { background: rgba(255, 255, 255, 0.92); color: #c0392b; }
-        .hl-tag.ji { background: rgba(28, 38, 58, 0.55); color: #ffffff; }
-        .hl-words {
-            font-size: 0.79rem;
-            line-height: 21px;
-            opacity: 0.95;
-            letter-spacing: 0.5px;
-        }
-        .hl-words .sep { opacity: 0.45; margin: 0 3px; }
-
-        .hl-foot {
-            font-size: 0.68rem;
-            opacity: 0.72;
-            letter-spacing: 0.4px;
-            line-height: 1.7;
-            border-top: 1px solid rgba(255, 255, 255, 0.16);
-            padding-top: 8px;
-        }
         #current-time {
             font-size: 3.2rem;
             font-weight: 700;
@@ -534,7 +432,7 @@
 
     <header class="app-title">
         <h1>工具箱</h1>
-        <p>计时 · 计数 · 换算 · 黄历</p>
+        <p>计时 · 计数 · 换算</p>
     </header>
 
     <div class="app-grid">
@@ -546,35 +444,6 @@
                     <div id="current-time">00:00:00</div>
                     <div id="lunar-line">农历……</div>
                     <div id="term-line">—</div>
-                </div>
-
-                <div class="hl-panel">
-                    <div class="hl-grid">
-                        <div class="hl-cell span2"><span class="hl-k">干支</span><span class="hl-v" id="hl-gz">—</span></div>
-                        <div class="hl-cell"><span class="hl-k">生肖星座</span><span class="hl-v" id="hl-sx">—</span></div>
-                        <div class="hl-cell"><span class="hl-k">星宿</span><span class="hl-v" id="hl-xiu">—</span></div>
-                        <div class="hl-cell"><span class="hl-k">建除</span><span class="hl-v" id="hl-jc">—</span></div>
-                        <div class="hl-cell"><span class="hl-k">值神</span><span class="hl-v" id="hl-zs">—</span></div>
-                        <div class="hl-cell span3"><span class="hl-k">冲煞</span><span class="hl-v" id="hl-cs">—</span></div>
-                    </div>
-
-                    <div class="hl-verdict">
-                        <span class="hl-badge lv3" id="hl-badge">—</span>
-                        <span class="hl-score" id="hl-score">—</span>
-                    </div>
-
-                    <div class="hl-yj">
-                        <div class="hl-row">
-                            <span class="hl-tag yi">宜</span>
-                            <span class="hl-words" id="hl-yi">—</span>
-                        </div>
-                        <div class="hl-row">
-                            <span class="hl-tag ji">忌</span>
-                            <span class="hl-words" id="hl-ji">—</span>
-                        </div>
-                    </div>
-
-                    <div class="hl-foot" id="hl-foot">—</div>
                 </div>
             </div>
         </div>
@@ -647,11 +516,11 @@
             const seconds = String(now.getSeconds()).padStart(2, '0');
             document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
 
-            updateHuangli();
+            updateLunar();
         }
 
-        // ---------------- 农历 / 黄历 ----------------
-        // ===== 农历/黄历数据表（由权威农历库导出校对，覆盖 1900-2100） =====
+        // ---------------- 农历 / 节气 ----------------
+        // ===== 农历数据表（由权威农历库导出校对，覆盖 1900-2100） =====
         const LUNAR_INFO = [
             0x4bd8,0x4ae0,0xa570,0x54d5,0xd260,0xd950,0x6554,0x156a0,0x9ad0,0x55d2,0x4ae0,0xa5b6,0xa4d0,0xd250,
             0xd255,0x1b540,0xd6a0,0xada2,0x95b0,0x4977,0x14970,0xa4b0,0xb4b5,0x6a50,0x6d40,0xab54,0x12b60,0x9570,
@@ -695,38 +564,11 @@
             '5rxr69ey6quc78777pfw86k48nix94co9l17a1lhai20ayg805910lm2120a1ih91z1p2fqt2wks3dk83uoo4bxw4taw5aqk5s7p69oo6r4b78gx7ppv86tu8nsw94md9lb4a1v5aibwaypw04ex0krq11661hmx1y7m2ewi2vqq3cpx3tuj4b3k4sgm59w75rdb68u96q9s77mj7ovc85zj8myd93s59kgoa10zahhiaxvs04ok0l1m11fu1hwt1yh92f6e2w0c3czs3u444bde4sq65a5z5rmw69416qjg77wb7p53869b8n89941z9kqma1atahrfay5j04yd0lba11pi1i6d1yqu2fft2w9w3d973udr4bmu4szx5afj5rwq69dn6qtd78607pf186j28ni794bs9l0ka1koai1eayfe058c0ll411zg1ig61z0q2fpl2wjq3diz3unk4bwo4t9p5apf5s6g69nj6r3078fu7pok86st8nrn94lh9la0a1ueaiaxayp804dz0kr111561hm61y6i2evm2vpi3coy3tta4b2k4sfe59v75rc668t96q8r77li7oud85yh8mxi93r49kfva101ahgtaxuw04nw0l0s11f51hvw1ygf2f592vzc3cyg3u2z4bbx4soz5a4i5rlq692m6qib77v07p4086848n77940w9kpma19uahqkay4p04xn0laj11ov1i5o1yq62ff32w923d8b3ucp4blt4syo5aee5rvd69ci6qry784w7pdn86hz8ngu94ao9kz8a1jlai03ayec05730lk511ya1if91yzn2foq2win3di23umf4bvm4t8i5ao65s5869m76r1t78eh7pnh86ri8nqn94k89l91' +
             'a1t5ai9xayny04cy0kpr11451hkv1y5i2euc2voi3cnn3ts84b164se759tp5rat68rp6q7877jy7oss85wz8mvy93pr9kefa0ysahffaxtp04mk0kzk11dt1hup1yf42f442vy13cxd3u1o4bav4snn5a3e5rka691e6qgs77tn7p2e866o8n5l93ze9ko2a18eahp0ay3804w30l9211n91i441yoi2fdh2w7f3d6p3ub54bk84sx75act5rtz69aw6qqm78397pca86gb8nfg94909kxua1hyahyraycs055t0lil11x01idp1yya2fn32wh73dgd3ukw4btx4t6y5amk5s3n69kn6r0678cz7plr86q08nov94io9l78a1rlai84ayme';
 
-        const YI_TABLE = {"建": ["祭祀", "出行", "教牛马"], "除": ["祭祀", "动土", "解除", "出行", "开光", "嫁娶"], "满": ["安床", "开市", "开光", "会亲友", "交易", "纳采"], "平": ["平治道涂", "祭祀", "修饰垣墙"], "定": ["祭祀", "祈福", "安葬", "开光", "动土", "移徙"], "执": ["祭祀", "安葬", "破土", "入殓", "祈福", "解除"], "破": ["破屋", "坏垣", "祭祀", "治病", "解除", "沐浴"], "危": ["祭祀", "破土", "安床", "嫁娶", "动土", "安葬"], "成": ["祭祀", "开光", "安葬", "祈福", "破土", "开市"], "收": ["祭祀", "捕捉", "纳财", "作灶", "进人口"], "开": ["祭祀", "祈福", "动土", "开光", "求嗣", "嫁娶"], "闭": ["入殓", "安葬", "祭祀", "塞穴", "破土", "移柩"]};
-        const JI_TABLE = {"建": ["动土", "破土", "安葬", "嫁娶", "入宅"], "除": ["作灶", "安葬", "嫁娶", "行丧", "出行"], "满": ["动土", "入宅", "安葬", "祈福", "嫁娶"], "平": ["嫁娶", "入宅", "安葬", "栽种", "祈福"], "定": ["作灶", "开市", "置产", "嫁娶", "入宅"], "执": ["开市", "嫁娶", "入宅", "作灶", "交易"], "破": ["嫁娶", "安葬", "入宅", "开市"], "危": ["作灶", "安葬", "嫁娶", "入宅", "祈福"], "成": ["嫁娶", "入宅", "伐木", "安葬", "出火"], "收": ["安葬", "开市", "破土", "嫁娶", "安床"], "开": ["安葬", "入宅", "入殓", "安门", "作灶"], "闭": ["开光", "嫁娶", "入宅", "掘井", "开市"]};
-
         const HL = (function () {
-            const GAN = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-            const ZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-            const SX = ['鼠', '牛', '虎', '兔', '龙', '蛇', '马', '羊', '猴', '鸡', '狗', '猪'];
             const TERM_NAME = ['小寒', '大寒', '立春', '雨水', '惊蛰', '春分', '清明', '谷雨', '立夏', '小满', '芒种', '夏至', '小暑', '大暑', '立秋', '处暑', '白露', '秋分', '寒露', '霜降', '立冬', '小雪', '大雪', '冬至'];
-            const NAYIN30 = ['海中金', '炉中火', '大林木', '路旁土', '剑锋金', '山头火', '涧下水', '城头土', '白蜡金', '杨柳木', '泉中水', '屋上土', '霹雳火', '松柏木', '长流水', '沙中金', '山下火', '平地木', '壁上土', '金箔金', '覆灯火', '天河水', '大驿土', '钗钏金', '桑柘木', '大溪水', '沙中土', '天上火', '石榴木', '大海水'];
-            const XIU = ['角', '亢', '氐', '房', '心', '尾', '箕', '斗', '牛', '女', '虚', '危', '室', '壁', '奎', '娄', '胃', '昴', '毕', '觜', '参', '井', '鬼', '柳', '星', '张', '翼', '轸'];
-            const XIU_XING = ['木', '金', '土', '日', '月', '火', '水', '木', '金', '土', '日', '月', '火', '水', '木', '金', '土', '日', '月', '火', '水', '木', '金', '土', '日', '月', '火', '水'];
-            const XIU_ANIMAL = ['蛟', '龙', '貉', '兔', '狐', '虎', '豹', '獬', '牛', '蝠', '鼠', '燕', '猪', '貐', '狼', '狗', '雉', '鸡', '乌', '猴', '猿', '犴', '羊', '獐', '马', '鹿', '蛇', '蚓'];
-            const XIU_SIDE = ['东', '东', '东', '东', '东', '东', '东', '北', '北', '北', '北', '北', '北', '北', '西', '西', '西', '西', '西', '西', '西', '南', '南', '南', '南', '南', '南', '南'];
-            const XIU_LUCK = [1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1];
-            const JIANCHU = ['建', '除', '满', '平', '定', '执', '破', '危', '成', '收', '开', '闭'];
-            const JC_SCORE = [-1, 1, 0, 0, 1, 1, -2, 1, 2, 0, 2, -1];
-            const ZHISHEN = ['青龙', '明堂', '天刑', '朱雀', '金匮', '天德', '白虎', '玉堂', '天牢', '玄武', '司命', '勾陈'];
-            const HUANGDAO = [1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0];
-            const PENG_GAN = ['甲不开仓财物耗散', '乙不栽植千株不长', '丙不修灶必见灾殃', '丁不剃头头必生疮', '戊不受田田主不祥', '己不破券二比并亡', '庚不经络织机虚张', '辛不合酱主人不尝', '壬不汲水更难提防', '癸不词讼理弱敌强'];
-            const PENG_ZHI = ['子不问卜自惹祸殃', '丑不冠带主不还乡', '寅不祭祀神鬼不尝', '卯不穿井水泉不香', '辰不哭泣必主重丧', '巳不远行财物伏藏', '午不苫盖屋主更张', '未不服药毒气入肠', '申不安床鬼祟入房', '酉不会客醉坐颠狂', '戌不吃犬作怪上床', '亥不嫁娶不利新郎'];
-            // 日煞方：申子辰日煞南、巳酉丑日煞东、亥卯未日煞西、寅午戌日煞北
-            const SHA_DIR = ['南', '东', '北', '西', '南', '东', '北', '西', '南', '东', '北', '西'];
-            // 节（非中气）→ 月支；奇数位为中气，留空
-            const JIE2ZHI = [1, -1, 2, -1, 3, -1, 4, -1, 5, -1, 6, -1, 7, -1, 8, -1, 9, -1, 10, -1, 11, -1, 0, -1];
-            // 月支 → 五虎遁月序（寅月为正月）
-            const ZHI2MON = [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
             const MONTH_CN = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
             const NUM_CN = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-            const ZODIAC = ['摩羯', '水瓶', '双鱼', '白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯'];
-            const ZODIAC_CUT = [20, 19, 21, 20, 21, 22, 23, 23, 23, 24, 23, 22];
 
-            const U1900 = Date.UTC(1900, 0, 1);
             const U1900_0131 = Date.UTC(1900, 0, 31);   // 1900 年正月初一
 
             /* ---- 农历基础 ---- */
@@ -773,12 +615,6 @@
                 };
             }
 
-            /* ---- 纳音五行 ---- */
-            function naYin(g, z) {
-                const k = ((((g - z) / 2) % 6) + 6) % 6;
-                return NAYIN30[Math.floor((g + 10 * k) / 2)];
-            }
-
             function lunarDayCN(d) {
                 if (d === 10) return '初十';
                 if (d === 20) return '二十';
@@ -793,7 +629,6 @@
             function compute(date) {
                 const y = date.getFullYear(), m = date.getMonth() + 1, d = date.getDate();
                 const todayTs = Date.UTC(y, m - 1, d);
-                const days1900 = Math.round((todayTs - U1900) / 86400000);
 
                 // 农历（数据表覆盖 1900-01-31 ~ 2100 年末，越界则只给降级提示）
                 const lunarOK = todayTs >= U1900_0131 && y >= 1900 && y <= 2100;
@@ -805,41 +640,15 @@
                     for (let n = 0; n < 24; n++) {
                         const t = termTime(yy, n);
                         if (!t) continue;
-                        // 按日粒度判定：交节当天即算进入新节气（与通行黄历一致）
+                        // 按日粒度判定：交节当天即算进入新节气（与通行日历一致）
                         if (Date.UTC(t.y, t.m - 1, t.day) <= todayTs) prev = { t, n };
                         else if (!next) next = { t, n };
                     }
                 }
                 // 数据表下界（1900 年小寒之前）兜底：按上一年冬至处理
                 if (!prev) { const t = termTime(1900, 0); if (t) prev = { t, n: 23 }; }
+                if (!prev) return { lunarFull: '农历数据支持 1900–2100 年', termText: '—' };
 
-                // 年干支：立春分界（按日）
-                const lc = termTime(y, 2);
-                const gzY = (lc && todayTs >= Date.UTC(lc.y, lc.m - 1, lc.day)) ? y : y - 1;
-                const yG = ((gzY - 4) % 10 + 10) % 10;
-                const yZ = ((gzY - 4) % 12 + 12) % 12;
-
-                // 月干支：节气月 + 五虎遁
-                const jieN = prev.n % 2 === 0 ? prev.n : prev.n - 1;
-                const mZ = JIE2ZHI[jieN];
-                const mG = ((yG % 5) * 2 + 2 + (ZHI2MON[mZ] - 1)) % 10;
-
-                // 日干支
-                const dG = ((days1900 % 10) + 10) % 10;
-                const dZ = ((days1900 + 10) % 12 + 12) % 12;
-
-                // 星宿 / 建除 / 值神
-                const xi = ((days1900 + 4) % 28 + 28) % 28;
-                const jc = (dZ - mZ + 12) % 12;
-                const zs = (((dZ - (mZ * 2 + 8) % 12) % 12) + 12) % 12;
-
-                // 吉凶评分
-                let score = (HUANGDAO[zs] ? 2 : -2) + JC_SCORE[jc] + (XIU_LUCK[xi] ? 1 : -1);
-                const level = score >= 4 ? 5 : score >= 2 ? 4 : score >= 0 ? 3 : score >= -2 ? 2 : 1;
-                const LEVEL_NAME = ['', '大凶', '凶', '平日', '吉', '大吉'];
-
-                // 冲煞
-                const cZ = (dZ + 6) % 12, cG = (dG + 4) % 10;
                 const isTermDay = prev.t.y === y && prev.t.m === m && prev.t.day === d;
                 const daysToNext = next ? Math.floor((next.t.ts - todayTs) / 86400000) : 0;
                 const termText = next
@@ -849,61 +658,29 @@
                 const lunarText = `${ly}年${lm < 0 ? '闰' : ''}${MONTH_CN[Math.abs(lm) - 1]}月${lunarDayCN(ld)}`;
 
                 return {
-                    lunarStr: lunarText,
                     lunarFull: lunarOK ? lunarText : '农历数据支持 1900–2100 年',
-                    gz: `${GAN[yG]}${ZHI[yZ]}年 ${GAN[mG]}${ZHI[mZ]}月 ${GAN[dG]}${ZHI[dZ]}日`,
-                    sx: `${SX[yZ]} · ${ZODIAC[d < ZODIAC_CUT[m - 1] ? m - 1 : m]}座`,
-                    xiu: `${XIU_SIDE[xi]}方${XIU[xi]}${XIU_XING[xi]}${XIU_ANIMAL[xi]}`,
-                    xiuLuck: XIU_LUCK[xi],
-                    jc: JIANCHU[jc] + '日',
-                    zs: `${ZHISHEN[zs]}·${HUANGDAO[zs] ? '黄道' : '黑道'}`,
-                    cs: `冲${SX[cZ]}·煞${SHA_DIR[dZ]}`,
-                    csFull: `${ZHI[dZ]}日冲${SX[cZ]}(${GAN[cG]}${ZHI[cZ]}) 煞${SHA_DIR[dZ]}`,
-                    yi: YI_TABLE[JIANCHU[jc]] || [],
-                    ji: JI_TABLE[JIANCHU[jc]] || [],
-                    level, levelName: LEVEL_NAME[level], score,
-                    termText,
-                    termName: TERM_NAME[prev.n], isTermDay,
-                    peng: `${PENG_GAN[dG]}　${PENG_ZHI[dZ]}`,
-                    nayin: `纳音 ${naYin(yG, yZ)}·${naYin(mG, mZ)}·${naYin(dG, dZ)}`
+                    termText
                 };
             }
 
             return { compute };
         })();
 
-        let hlDateKey = '';
-        function updateHuangli() {
+        let lunarDateKey = '';
+        function updateLunar() {
             const now = new Date();
             const key = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
-            if (key === hlDateKey) return;      // 同一天内不重复计算
-            hlDateKey = key;
+            if (key === lunarDateKey) return;   // 同一天内不重复计算
+            lunarDateKey = key;
 
             const r = HL.compute(now);
             const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
 
             set('lunar-line', r.lunarFull);
             set('term-line', r.termText);
-            set('hl-gz', r.gz);
-            set('hl-sx', r.sx);
-            set('hl-xiu', r.xiu);
-            set('hl-jc', r.jc);
-            set('hl-zs', r.zs);
-            set('hl-cs', r.csFull);
-
-            const badge = document.getElementById('hl-badge');
-            if (badge) {
-                badge.textContent = r.levelName;
-                badge.className = 'hl-badge lv' + r.level;
-            }
-            const dao = r.zs.split('·')[1];                       // 黄道 / 黑道
-            set('hl-score', `${dao}日 · ${r.jc} · ${r.xiu.slice(2, 3)}宿${r.xiuLuck ? '吉' : '凶'}`);
-            set('hl-yi', (r.yi.join('<span class="sep">·</span>') || '—'));
-            set('hl-ji', (r.ji.join('<span class="sep">·</span>') || '—'));
-            set('hl-foot', `${r.peng}<br>${r.nayin}`);
         }
 
-        // 启动时钟（必须放在 HL / updateHuangli 定义之后，否则触发暂时性死区报错）
+        // 启动时钟（必须放在 HL / updateLunar 定义之后，否则触发暂时性死区报错）
         updateDateTime();
         setInterval(updateDateTime, 1000);
 
